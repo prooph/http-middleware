@@ -1,0 +1,12 @@
+{
+  "title": "http middleware for prooph components",
+  "content": [
+    {"intro": "../README.md"},
+    {"overview": "book/middleware.md"},
+    {"factories": "book/factories.md"},
+    {"zend-expressive-integration": "book/zend_expressive.md"}
+  ],
+  "tocDepth": 2,
+  "target": "./html",
+  "template": "../vendor/prooph/bookdown-template/templates/main.php"
+}

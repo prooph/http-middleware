@@ -14,13 +14,14 @@ namespace Prooph\HttpMiddleware;
 
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\Server\MiddlewareInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\QueryBus;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
-use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 
 /**
  * Query messages describe available information that can be fetched from your (read) model.
@@ -79,7 +80,7 @@ final class QueryMiddleware implements MiddlewareInterface
         $this->metadataGatherer = $metadataGatherer;
     }
 
-    public function process(ServerRequestInterface $request, HandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
 

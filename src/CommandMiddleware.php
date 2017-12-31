@@ -13,13 +13,14 @@ declare(strict_types=1);
 namespace Prooph\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\Server\MiddlewareInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
-use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 
 /**
  * Command messages describe actions your model can handle.
@@ -76,7 +77,7 @@ final class CommandMiddleware implements MiddlewareInterface
         $this->responseStrategy = $responseStrategy;
     }
 
-    public function process(ServerRequestInterface $request, HandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $commandName = $request->getAttribute(self::NAME_ATTRIBUTE);
 

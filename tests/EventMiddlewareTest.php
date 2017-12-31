@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace ProophTest\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -24,7 +25,6 @@ use Prooph\ServiceBus\EventBus;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
 
 /**
  * Test integrity of \Prooph\HttpMiddleware\EventMiddleware
@@ -50,7 +50,7 @@ class EventMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $handler = $this->prophesize(HandlerInterface::class);
+        $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(sprintf('Event name attribute ("%s") was not found in request.', EventMiddleware::NAME_ATTRIBUTE));
@@ -93,7 +93,7 @@ class EventMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus()->shouldNotBeCalled();
 
-        $handler = $this->prophesize(HandlerInterface::class);
+        $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionCode(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
@@ -138,7 +138,7 @@ class EventMiddlewareTest extends TestCase
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->willReturn($response);
 
-        $handler = $this->prophesize(HandlerInterface::class);
+        $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
         $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));

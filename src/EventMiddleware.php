@@ -13,13 +13,14 @@ declare(strict_types=1);
 namespace Prooph\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
+use Interop\Http\Server\MiddlewareInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Webimpress\HttpMiddlewareCompatibility\HandlerInterface;
-use Webimpress\HttpMiddlewareCompatibility\MiddlewareInterface;
 
 /**
  * Event messages describe things that happened while your model handled a command.
@@ -76,7 +77,7 @@ final class EventMiddleware implements MiddlewareInterface
         $this->responseStrategy = $responseStrategy;
     }
 
-    public function process(ServerRequestInterface $request, HandlerInterface $handler)
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $eventName = $request->getAttribute(self::NAME_ATTRIBUTE);
 

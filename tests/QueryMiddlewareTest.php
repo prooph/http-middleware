@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace ProophTest\HttpMiddleware;
 
-use Interop\Http\Server\RequestHandlerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;

@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Prooph\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\Server\MiddlewareInterface;
-use Interop\Http\Server\RequestHandlerInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageDataAssertion;
 use Prooph\Common\Messaging\MessageFactory;

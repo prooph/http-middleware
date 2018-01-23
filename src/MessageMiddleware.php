@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace Prooph\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageDataAssertion;
 use Prooph\Common\Messaging\MessageFactory;
@@ -25,6 +23,8 @@ use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Ramsey\Uuid\Uuid;
 
 /**

@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace ProophTest\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -26,6 +25,7 @@ use Prooph\ServiceBus\QueryBus;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use React\Promise\Promise;
 
 /**

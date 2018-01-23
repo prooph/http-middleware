@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace Prooph\HttpMiddleware;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Event messages describe things that happened while your model handled a command.

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Prooph\HttpMiddleware;
 
+use Assert\Assertion;
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\MessageFactory;
@@ -22,6 +23,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function React\Promise\all;
 
 /**
  * Query messages describe available information that can be fetched from your (read) model.
@@ -34,7 +36,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class QueryMiddleware implements MiddlewareInterface
 {
     /**
-     * Identifier to execute specific query
+     * The query message identifier.
      *
      * @var string
      */
@@ -82,35 +84,83 @@ final class QueryMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
+        $messages = $this->parseRequestMessages($request);
 
-        if (null === $queryName) {
-            throw new RuntimeException(
-                sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
-                StatusCodeInterface::STATUS_BAD_REQUEST
+        $responses = [];
+
+        foreach ($messages as $message) {
+            $message['metadata'] = $this->metadataGatherer->getFromRequest($request);
+
+            $query = $this->queryFactory->createMessageFromArray(
+                $message[self::NAME_ATTRIBUTE],
+                $message
             );
-        }
-        $payload = $request->getQueryParams();
 
-        if ($request->getMethod() === RequestMethodInterface::METHOD_POST) {
-            $payload['data'] = $request->getParsedBody();
+            try {
+                $responses[] = $this->queryBus->dispatch($query);
+            } catch (\Throwable $e) {
+                throw new RuntimeException(
+                    sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
+                    StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                    $e
+                );
+            }
         }
 
         try {
-            $query = $this->queryFactory->createMessageFromArray($queryName, [
-                'payload' => $payload,
-                'metadata' => $this->metadataGatherer->getFromRequest($request),
-            ]);
-
-            return $this->responseStrategy->fromPromise(
-                $this->queryBus->dispatch($query)
-            );
+            return $this->responseStrategy->fromPromise(all($responses));
         } catch (\Throwable $e) {
             throw new RuntimeException(
-                sprintf('An error occurred during dispatching of query "%s"', $queryName),
+                'An error occurred dispatching queries',
                 StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $e
             );
         }
+    }
+
+    private function parseRequestMessages(ServerRequestInterface $request): array
+    {
+        if ($request->getMethod() === RequestMethodInterface::METHOD_POST) {
+            $messages = $request->getParsedBody();
+
+            $this->validateMessages($messages);
+        } elseif ($request->getMethod() === RequestMethodInterface::METHOD_GET) {
+            $messages = $this->parseGetMessage($request);
+        } else {
+            throw new RuntimeException(
+                sprintf('Method %s not allowed.', $request->getMethod()),
+                StatusCodeInterface::STATUS_METHOD_NOT_ALLOWED
+            );
+        }
+
+        return $messages;
+    }
+
+    private function validateMessages(array $messages): void
+    {
+        Assertion::allSatisfy(
+            $messages,
+            function ($request) {
+                return is_array($request) && array_key_exists(self::NAME_ATTRIBUTE, $request);
+            },
+            sprintf('The request body must be an array of objects with at least the %s property', self::NAME_ATTRIBUTE)
+        );
+    }
+
+    private function parseGetMessage(ServerRequestInterface $request): array
+    {
+        $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
+
+        if (null === $queryName) {
+            throw new RuntimeException(
+                sprintf('Query name attribute ("%s") was not found in request.', QueryMiddleware::NAME_ATTRIBUTE)
+            );
+        }
+
+        $message = $request->getQueryParams();
+
+        $message[self::NAME_ATTRIBUTE] = $queryName;
+
+        return [$message];
     }
 }

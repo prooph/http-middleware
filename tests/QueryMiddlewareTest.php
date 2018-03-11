@@ -117,7 +117,9 @@ class QueryMiddlewareTest extends TestCase
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new Promise(function () { return []; })
+            new Promise(function () {
+                return [];
+            })
         );
 
         $message = $this->prophesize(Message::class);
@@ -161,7 +163,9 @@ class QueryMiddlewareTest extends TestCase
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new Promise(function () { return []; })
+            new Promise(function () {
+                return [];
+            })
         );
 
         $message = $this->prophesize(Message::class);
@@ -209,7 +213,9 @@ class QueryMiddlewareTest extends TestCase
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new Promise(function () { return []; })
+            new Promise(function () {
+                return [];
+            })
         );
 
         $message = $this->prophesize(Message::class);

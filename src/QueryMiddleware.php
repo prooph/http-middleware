@@ -86,9 +86,9 @@ final class QueryMiddleware implements MiddlewareInterface
     {
         $messages = $this->parseRequestMessages($request);
 
-        $responses = [];
+        $promises = [];
 
-        foreach ($messages as $message) {
+        foreach ($messages as $id => $message) {
             $message['metadata'] = $this->metadataGatherer->getFromRequest($request);
 
             $query = $this->queryFactory->createMessageFromArray(
@@ -97,7 +97,7 @@ final class QueryMiddleware implements MiddlewareInterface
             );
 
             try {
-                $responses[] = $this->queryBus->dispatch($query);
+                $promises[$id] = $this->queryBus->dispatch($query);
             } catch (\Throwable $e) {
                 throw new RuntimeException(
                     sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
@@ -108,7 +108,9 @@ final class QueryMiddleware implements MiddlewareInterface
         }
 
         try {
-            return $this->responseStrategy->fromPromise(all($responses));
+            $all = all($promises);
+
+            return $this->responseStrategy->fromPromise($all);
         } catch (\Throwable $e) {
             throw new RuntimeException(
                 'An error occurred dispatching queries',

@@ -25,6 +25,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
 
 /**
@@ -117,9 +118,7 @@ class QueryMiddlewareTest extends TestCase
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new Promise(function () {
-                return [];
-            })
+            new FulfilledPromise()
         );
 
         $message = $this->prophesize(Message::class);
@@ -162,11 +161,7 @@ class QueryMiddlewareTest extends TestCase
         $parsedBody = [['prooph_query_name' => $queryName, 'filter' => []]];
 
         $queryBus = $this->prophesize(QueryBus::class);
-        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new Promise(function () {
-                return [];
-            })
-        );
+        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(new FulfilledPromise([]));
 
         $message = $this->prophesize(Message::class);
 
@@ -207,16 +202,12 @@ class QueryMiddlewareTest extends TestCase
     {
         $queryName = 'stdClass';
         $parsedBody = [
-            ['prooph_query_name' => $queryName, 'filter' => []],
-            ['prooph_query_name' => $queryName, 'filter' => ['test']],
+            'one' => ['prooph_query_name' => $queryName, 'filter' => []],
+            'two' => ['prooph_query_name' => $queryName, 'filter' => ['test']],
         ];
 
         $queryBus = $this->prophesize(QueryBus::class);
-        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new Promise(function () {
-                return [];
-            })
-        );
+        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(new FulfilledPromise([]));
 
         $message = $this->prophesize(Message::class);
 

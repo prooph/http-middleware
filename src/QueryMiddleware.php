@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Prooph\HttpMiddleware;
 
-use Assert\Assertion;
 use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\MessageFactory;
@@ -41,6 +40,13 @@ final class QueryMiddleware implements MiddlewareInterface
      * @var string
      */
     public const NAME_ATTRIBUTE = 'prooph_query_name';
+
+    /**
+     * The property identifier for the collection of queries.
+     *
+     * @var string
+     */
+    public const QUERIES_ATTRIBUTE = 'queries';
 
     /**
      * Dispatches query
@@ -123,11 +129,9 @@ final class QueryMiddleware implements MiddlewareInterface
     private function parseRequestMessages(ServerRequestInterface $request): array
     {
         if ($request->getMethod() === RequestMethodInterface::METHOD_POST) {
-            $messages = $request->getParsedBody();
-
-            $this->validateMessages($messages);
+            $attributes = $request->getParsedBody();
         } elseif ($request->getMethod() === RequestMethodInterface::METHOD_GET) {
-            $messages = $this->parseGetMessage($request);
+            $attributes = $request->getQueryParams();
         } else {
             throw new RuntimeException(
                 sprintf('Method %s not allowed.', $request->getMethod()),
@@ -135,34 +139,42 @@ final class QueryMiddleware implements MiddlewareInterface
             );
         }
 
+        if (! isset($attributes[self::QUERIES_ATTRIBUTE])) {
+            throw new RuntimeException(
+                sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE)
+            );
+        }
+
+        $messages = $attributes[self::QUERIES_ATTRIBUTE];
+
+        if (is_string($messages)) {
+            $messages = $this->parseJson($messages);
+        }
+
+        $this->validateMessages($messages);
+
         return $messages;
     }
 
     private function validateMessages(array $messages): void
     {
-        Assertion::allSatisfy(
-            $messages,
-            function ($request) {
-                return is_array($request) && array_key_exists(self::NAME_ATTRIBUTE, $request);
-            },
-            sprintf('The request body must be an array of objects with at least the %s property', self::NAME_ATTRIBUTE)
-        );
+        foreach ($messages as $message) {
+            if (! is_array($message) || ! array_key_exists(self::NAME_ATTRIBUTE, $message)) {
+                throw new RuntimeException(
+                    sprintf('Each query must contain the query name attribute (%s).', self::NAME_ATTRIBUTE)
+                );
+            }
+        }
     }
 
-    private function parseGetMessage(ServerRequestInterface $request): array
+    private function parseJson(string $json): array
     {
-        $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
+        $messages = json_decode($json, true);
 
-        if (null === $queryName) {
-            throw new RuntimeException(
-                sprintf('Query name attribute ("%s") was not found in request.', QueryMiddleware::NAME_ATTRIBUTE)
-            );
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new RuntimeException(sprintf('JSON value for root value (%s) is invalid', self::QUERIES_ATTRIBUTE));
         }
 
-        $message = $request->getQueryParams();
-
-        $message[self::NAME_ATTRIBUTE] = $queryName;
-
-        return [$message];
+        return $messages;
     }
 }

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Prooph\HttpMiddleware;
 
-use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
@@ -90,11 +89,13 @@ final class QueryMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $messages = $this->parseRequestMessages($request);
+        $body = $request->getParsedBody();
+
+        $this->validateRequestBody($body);
 
         $promises = [];
 
-        foreach ($messages as $id => $message) {
+        foreach ($body[self::QUERIES_ATTRIBUTE] as $id => $message) {
             $message['metadata'] = $this->metadataGatherer->getFromRequest($request);
 
             $query = $this->queryFactory->createMessageFromArray(
@@ -126,55 +127,20 @@ final class QueryMiddleware implements MiddlewareInterface
         }
     }
 
-    private function parseRequestMessages(ServerRequestInterface $request): array
+    private function validateRequestBody(array $body): void
     {
-        if ($request->getMethod() === RequestMethodInterface::METHOD_POST) {
-            $attributes = $request->getParsedBody();
-        } elseif ($request->getMethod() === RequestMethodInterface::METHOD_GET) {
-            $attributes = $request->getQueryParams();
-        } else {
-            throw new RuntimeException(
-                sprintf('Method %s not allowed.', $request->getMethod()),
-                StatusCodeInterface::STATUS_METHOD_NOT_ALLOWED
-            );
-        }
-
-        if (! isset($attributes[self::QUERIES_ATTRIBUTE])) {
+        if (! isset($body[self::QUERIES_ATTRIBUTE])) {
             throw new RuntimeException(
                 sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE)
             );
         }
 
-        $messages = $attributes[self::QUERIES_ATTRIBUTE];
-
-        if (is_string($messages)) {
-            $messages = $this->parseJson($messages);
-        }
-
-        $this->validateMessages($messages);
-
-        return $messages;
-    }
-
-    private function validateMessages(array $messages): void
-    {
-        foreach ($messages as $message) {
+        foreach ($body[self::QUERIES_ATTRIBUTE] as $message) {
             if (! is_array($message) || ! array_key_exists(self::NAME_ATTRIBUTE, $message)) {
                 throw new RuntimeException(
                     sprintf('Each query must contain the query name attribute (%s).', self::NAME_ATTRIBUTE)
                 );
             }
         }
-    }
-
-    private function parseJson(string $json): array
-    {
-        $messages = json_decode($json, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException(sprintf('JSON value for root value (%s) is invalid', self::QUERIES_ATTRIBUTE));
-        }
-
-        return $messages;
     }
 }

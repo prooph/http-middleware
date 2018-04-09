@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace ProophTest\HttpMiddleware;
 
-use Fig\Http\Message\RequestMethodInterface;
 use PHPUnit\Framework\TestCase;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -47,8 +46,7 @@ class QueryMiddlewareTest extends TestCase
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn(RequestMethodInterface::METHOD_GET)->shouldBeCalled();
-        $request->getQueryParams()->willReturn([])->shouldBeCalled();
+        $request->getParsedBody()->willReturn([['prooph_query_name' => 'test_query']])->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->shouldNotBeCalled();
@@ -77,8 +75,7 @@ class QueryMiddlewareTest extends TestCase
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn(RequestMethodInterface::METHOD_GET)->shouldBeCalled();
-        $request->getQueryParams()->willReturn(['queries' => '{"one": {"key": "value"}}'])->shouldBeCalled();
+        $request->getParsedBody()->willReturn(['queries' => ['one' => ['key' => 'value']]])->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->shouldNotBeCalled();
@@ -96,39 +93,9 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_an_exception_if_queries_json_is_invalid(): void
-    {
-        $queryBus = $this->prophesize(QueryBus::class);
-        $queryBus->dispatch(Argument::type(Message::class))->shouldNotBeCalled();
-
-        $messageFactory = $this->prophesize(MessageFactory::class);
-
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
-
-        $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn(RequestMethodInterface::METHOD_GET)->shouldBeCalled();
-        $request->getQueryParams()->willReturn(['queries' => '{"one": {"prooph_query_name": "one", "key": "value"}}blah'])->shouldBeCalled();
-
-        $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request->reveal())->shouldNotBeCalled();
-
-        $handler = $this->prophesize(RequestHandlerInterface::class);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('JSON value for root value (queries) is invalid', QueryMiddleware::QUERIES_ATTRIBUTE));
-
-        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
-
-        $middleware->process($request->reveal(), $handler->reveal());
-    }
-
-    /**
-     * @test
-     */
     public function it_throws_exception_if_dispatch_failed(): void
     {
-        $payload = ['queries' => json_encode(['one' => ['prooph_query_name' => 'stdClass', 'user_id' => 123]])];
+        $payload = ['queries' => ['one' => ['prooph_query_name' => 'stdClass', 'user_id' => 123]]];
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->willThrow(
@@ -150,8 +117,7 @@ class QueryMiddlewareTest extends TestCase
         $responseStrategy->fromPromise(Argument::type(Promise::class))->shouldNotBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn(RequestMethodInterface::METHOD_GET)->shouldBeCalled();
-        $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
+        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
         $gatherer->getFromRequest($request->reveal())->willReturn([])->shouldBeCalled();
@@ -169,49 +135,7 @@ class QueryMiddlewareTest extends TestCase
     /**
      * @test
      */
-    public function it_dispatches_the_query(): void
-    {
-        $payload = ['queries' => json_encode(['one' => ['prooph_query_name' => 'stdClass', 'user_id' => 123]])];
-
-        $queryBus = $this->prophesize(QueryBus::class);
-        $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(
-            new FulfilledPromise()
-        );
-
-        $message = $this->prophesize(Message::class);
-
-        $messageFactory = $this->prophesize(MessageFactory::class);
-        $messageFactory
-            ->createMessageFromArray(
-                'stdClass',
-                ['prooph_query_name' => 'stdClass', 'user_id' => 123, 'metadata' => []]
-            )
-            ->willReturn($message->reveal())
-            ->shouldBeCalled();
-
-        $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn(RequestMethodInterface::METHOD_GET)->shouldBeCalled();
-        $request->getQueryParams()->willReturn($payload)->shouldBeCalled();
-
-        $response = $this->prophesize(ResponseInterface::class);
-
-        $responseStrategy = $this->prophesize(ResponseStrategy::class);
-        $responseStrategy->fromPromise(Argument::type(Promise::class))->willReturn($response);
-
-        $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldBeCalled();
-
-        $handler = $this->prophesize(RequestHandlerInterface::class);
-
-        $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
-
-        $this->assertSame($response->reveal(), $middleware->process($request->reveal(), $handler->reveal()));
-    }
-
-    /**
-     * @test
-     */
-    public function it_dispatches_the_query_with_post_data(): void
+    public function it_dispatches_a_query(): void
     {
         $queryName = 'stdClass';
         $parsedBody = ['queries' => ['one' => ['prooph_query_name' => $queryName, 'filter' => []]]];
@@ -231,10 +155,7 @@ class QueryMiddlewareTest extends TestCase
             ->shouldBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn('POST')->shouldBeCalled();
         $request->getParsedBody()->willReturn($parsedBody)->shouldBeCalled();
-        $request->getQueryParams()->shouldNotBeCalled();
-        $request->getAttribute()->shouldNotBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 
@@ -287,10 +208,8 @@ class QueryMiddlewareTest extends TestCase
             ->shouldBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn('POST')->shouldBeCalled();
         $request->getParsedBody()->willReturn($parsedBody)->shouldBeCalled();
         $request->getQueryParams()->shouldNotBeCalled();
-        $request->getAttribute()->shouldNotBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 
@@ -332,10 +251,7 @@ class QueryMiddlewareTest extends TestCase
             ->shouldBeCalled();
 
         $request = $this->prophesize(ServerRequestInterface::class);
-        $request->getMethod()->willReturn('POST')->shouldBeCalled();
         $request->getParsedBody()->willReturn($parsedBody)->shouldBeCalled();
-        $request->getQueryParams()->shouldNotBeCalled();
-        $request->getAttribute()->shouldNotBeCalled();
 
         $response = $this->prophesize(ResponseInterface::class);
 

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Prooph\HttpMiddleware;
 
-use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
@@ -22,6 +21,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function React\Promise\all;
 
 /**
  * Query messages describe available information that can be fetched from your (read) model.
@@ -34,11 +34,18 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class QueryMiddleware implements MiddlewareInterface
 {
     /**
-     * Identifier to execute specific query
+     * The query message identifier.
      *
      * @var string
      */
     public const NAME_ATTRIBUTE = 'prooph_query_name';
+
+    /**
+     * The property identifier for the collection of queries.
+     *
+     * @var string
+     */
+    public const QUERIES_ATTRIBUTE = 'queries';
 
     /**
      * Dispatches query
@@ -82,35 +89,58 @@ final class QueryMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
+        $body = $request->getParsedBody();
 
-        if (null === $queryName) {
-            throw new RuntimeException(
-                sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
-                StatusCodeInterface::STATUS_BAD_REQUEST
+        $this->validateRequestBody($body);
+
+        $promises = [];
+
+        foreach ($body[self::QUERIES_ATTRIBUTE] as $id => $message) {
+            $message['metadata'] = $this->metadataGatherer->getFromRequest($request);
+
+            $query = $this->queryFactory->createMessageFromArray(
+                $message[self::NAME_ATTRIBUTE],
+                $message
             );
-        }
-        $payload = $request->getQueryParams();
 
-        if ($request->getMethod() === RequestMethodInterface::METHOD_POST) {
-            $payload['data'] = $request->getParsedBody();
+            try {
+                $promises[$id] = $this->queryBus->dispatch($query);
+            } catch (\Throwable $e) {
+                throw new RuntimeException(
+                    sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
+                    StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                    $e
+                );
+            }
         }
 
         try {
-            $query = $this->queryFactory->createMessageFromArray($queryName, [
-                'payload' => $payload,
-                'metadata' => $this->metadataGatherer->getFromRequest($request),
-            ]);
+            $all = all($promises);
 
-            return $this->responseStrategy->fromPromise(
-                $this->queryBus->dispatch($query)
-            );
+            return $this->responseStrategy->fromPromise($all);
         } catch (\Throwable $e) {
             throw new RuntimeException(
-                sprintf('An error occurred during dispatching of query "%s"', $queryName),
+                'An error occurred dispatching queries',
                 StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $e
             );
+        }
+    }
+
+    private function validateRequestBody(array $body): void
+    {
+        if (! isset($body[self::QUERIES_ATTRIBUTE])) {
+            throw new RuntimeException(
+                sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE)
+            );
+        }
+
+        foreach ($body[self::QUERIES_ATTRIBUTE] as $message) {
+            if (! is_array($message) || ! array_key_exists(self::NAME_ATTRIBUTE, $message)) {
+                throw new RuntimeException(
+                    sprintf('Each query must contain the query name attribute (%s).', self::NAME_ATTRIBUTE)
+                );
+            }
         }
     }
 }

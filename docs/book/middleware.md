@@ -12,54 +12,52 @@ object. The data for the command is extracted from the body of the request (`$re
 array.
 
 ## QueryMiddleware
-The `QueryMiddleware` dispatches the message data to the query bus system. Unlike the other middleware, the
-`QueryMiddleware` supports sending multiple messages using a *POST* request.
+The `QueryMiddleware` is used to dispatch messages to the query bus system. Unlike the other middleware, the `QueryMiddleware`
+supports sending multiple messages. Each query
+is an object inside of the root `queries` object on the request payload and is indexed using a unique key. The response will include the query results
+for each query, indexed using the same key as the request.  An example request/response would look like:
 
-### Using GET
-
-Using *GET*, the `QueryMiddleware` only supports a single message. The `prooph_query_name` attribute must be present as
-an `attribute` on the request. Any additional query parameters will be added to the body of the message as well. An
-example URL template would be
-
-`GET /query/{prooph_query_name}`
-
-The resulting request might be
-
-`GET /query/users?name=John`
-
-And the parsed message array would end up as
-
-```php
-[
-    'prooph_query_name' => 'users',
-    'name' => 'John'
-]
-```
-
-
-### Using POST
-
-With a *POST* request, it is expected that the parsed body contain an array of messages. Each object of the array must
-contain the `prooph_query_name` property. All other information will be used when populating the the message object. An
-example JSON request might look something like
+**Request**
 
 `POST /query`
 
 ```json
-[
-    {
-        "prooph_query_name": "query:get-users",
-        "filter": [
-            "12"
-        ]
-    },
-    {
-        "prooph_query_name": "query:get-todos",
-        "status": [
-            "OPEN"
-        ]
+{
+    "queries": {
+        "getUsers": {
+            "prooph_query_name": "query:get-users",
+            "filter": [
+                "12"
+            ]
+        },
+        "getTodos": {
+            "prooph_query_name": "query:get-todos",
+            "status": [
+                "OPEN"
+            ]
+        }
     }
-]
+}
+```
+
+**Response**
+
+```json
+{
+    "getUsers": [
+        {
+            "username": "John"
+        }
+    ],
+    "getTodos": [
+        {
+            "task": "Write some docs"
+        },
+        {
+            "task": "Build cool things"
+        }
+    ]
+}
 ```
 
 ## EventMiddleware

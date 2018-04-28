@@ -60,6 +60,55 @@ for each query, indexed using the same key as the request.  An example request/r
 }
 ```
 
+With this middleware you can also send GET request but in this case there is no body on the request so for that we need
+to extract query params, route params and query name from the route configuration.
+
+To extract route params you have to define your own `RouteParamsExtractor` depend on the router you would like to use.
+This interface has one method that must return an array. This is an example for Zend Expressive :
+
+```php
+final class DefaultRouteParamsExtractor implements RouteParamsExtractor
+{
+    public function extractRouteParams(ServerRequestInterface $request) : array
+    {
+        return $request->getAttribute(RouteResult::class)->getMatchedParams();
+    }
+}
+```
+
+This `RouteParamsExtractor` must be in you container and must be configured in the query command bus configuration with
+the key `route_params_extractor` like the following :
+
+```php
+'prooph' => [
+    'middleware' => [
+        'query' => [
+            'response_strategy' => '...',
+            'message_factory' => '...',
+            'metadata_gatherer' => '...',
+            'route_params_extractor' => DefaultRouteParamsExtractor::class,
+        ],
+    ],
+],
+```
+
+In your `Query` object you can retrieve route params at the root of the payload, all query params in the array query at
+the root of the payload and metadata in the root too. This is an example :
+
+```php
+'payload' => [
+    'route_params_1' => 'value1',
+    'route_params_2' => 'value2',
+    'query' => [
+        'query_param_1' => 'value1',
+        'query_param_2' => 'value2',
+    ],
+    'metadata' => [
+        'metadata_1' => 'value1',
+    ],
+],
+```
+
 ## EventMiddleware
 The `EventMiddleware` dispatches the message data to the event bus system. This middleware needs an request attribute
 (`$request->getAttribute(\Prooph\HttpMiddleware\EventMiddleware::NAME_ATTRIBUTE)`) called `prooph_event_name`.

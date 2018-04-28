@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Prooph\HttpMiddleware;
 
+use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\HttpMiddleware\Exception\RuntimeException;
@@ -75,47 +76,95 @@ final class QueryMiddleware implements MiddlewareInterface
      */
     private $metadataGatherer;
 
+    /**
+     * Route params extractor from the request
+     *
+     * @var RouteParamsExtractor
+     */
+    private $routeParamsExtractor;
+
     public function __construct(
         QueryBus $queryBus,
         MessageFactory $queryFactory,
         ResponseStrategy $responseStrategy,
-        MetadataGatherer $metadataGatherer
+        MetadataGatherer $metadataGatherer,
+        RouteParamsExtractor $routeParamsExtractor = null
     ) {
         $this->queryBus = $queryBus;
         $this->queryFactory = $queryFactory;
         $this->responseStrategy = $responseStrategy;
         $this->metadataGatherer = $metadataGatherer;
+        $this->routeParamsExtractor = $routeParamsExtractor;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $body = $request->getParsedBody();
+        if ($request->getMethod() === RequestMethodInterface::METHOD_GET) {
+            $queryName = $request->getAttribute(self::NAME_ATTRIBUTE);
 
-        $this->validateRequestBody($body);
+            if (null === $queryName) {
+                throw new RuntimeException(
+                    sprintf('Query name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                    StatusCodeInterface::STATUS_BAD_REQUEST
+                );
+            }
 
-        $promises = [];
+            if (null === $this->routeParamsExtractor) {
+                throw new RuntimeException(
+                    'Missing route params query extractor for get request',
+                    StatusCodeInterface::STATUS_BAD_REQUEST
+                );
+            }
 
-        foreach ($body[self::QUERIES_ATTRIBUTE] as $id => $message) {
-            $message['metadata'] = $this->metadataGatherer->getFromRequest($request);
-
-            $query = $this->queryFactory->createMessageFromArray(
-                $message[self::NAME_ATTRIBUTE],
-                $message
-            );
+            $payload = $this->extractParamsFromRequest($request);
 
             try {
-                $promises[$id] = $this->queryBus->dispatch($query);
+                $query = $this->queryFactory->createMessageFromArray(
+                    $queryName,
+                    $payload
+                );
+
+                $promises = $this->queryBus->dispatch($query);
             } catch (\Throwable $e) {
                 throw new RuntimeException(
-                    sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
+                    sprintf('An error occurred during dispatching of query "%s"', $queryName),
                     StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                     $e
                 );
             }
+        } else {
+            $body = $request->getParsedBody();
+
+            $this->validateRequestBody($body);
+
+            $promises = [];
+
+            foreach ($body[self::QUERIES_ATTRIBUTE] as $id => $message) {
+                $message['metadata'] = $this->metadataGatherer->getFromRequest($request);
+
+                $query = $this->queryFactory->createMessageFromArray(
+                    $message[self::NAME_ATTRIBUTE],
+                    $message
+                );
+
+                try {
+                    $promises[$id] = $this->queryBus->dispatch($query);
+                } catch (\Throwable $e) {
+                    throw new RuntimeException(
+                        sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
+                        StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                        $e
+                    );
+                }
+            }
         }
 
         try {
-            $all = all($promises);
+            if (is_array($promises)) {
+                $all = all($promises);
+            } else {
+                $all = $promises;
+            }
 
             return $this->responseStrategy->fromPromise($all);
         } catch (\Throwable $e) {
@@ -142,5 +191,16 @@ final class QueryMiddleware implements MiddlewareInterface
                 );
             }
         }
+    }
+
+    private function extractParamsFromRequest(ServerRequestInterface $request): array
+    {
+        $routeParams = $this->routeParamsExtractor->extractRouteParams($request);
+        $queryParams = $request->getQueryParams();
+
+        $payload = ['payload' => array_merge($routeParams, ['query' => $queryParams])];
+        $payload['metadata'] = $this->metadataGatherer->getFromRequest($request);
+
+        return $payload;
     }
 }

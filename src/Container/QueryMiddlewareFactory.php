@@ -39,11 +39,17 @@ final class QueryMiddlewareFactory extends AbstractMiddlewareFactory implements 
             $gatherer = new NoopMetadataGatherer();
         }
 
+        $routeParamExtractor = null;
+        if (isset($options['route_params_extractor']) && $container->has($options['route_params_extractor'])) {
+            $routeParamExtractor = $container->get($options['route_params_extractor']);
+        }
+
         return new QueryMiddleware(
             $container->get($options['query_bus']),
             $container->get($options['message_factory']),
             $container->get($options['response_strategy']),
-            $gatherer
+            $gatherer,
+            $routeParamExtractor
         );
     }
 

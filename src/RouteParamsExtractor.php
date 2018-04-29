@@ -15,9 +15,6 @@ namespace Prooph\HttpMiddleware;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @author Florent Blaison
- */
 interface RouteParamsExtractor
 {
     public function extractRouteParams(ServerRequestInterface $request): array;

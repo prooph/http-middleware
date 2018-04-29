@@ -214,7 +214,7 @@ class QueryMiddlewareTest extends TestCase
         $messageFactory
             ->createMessageFromArray(
                 'stdClass',
-                ['payload' => ['query' => []], 'metadata' => []]
+                ['payload' => [], 'metadata' => []]
             )
             ->willReturn($message->reveal())
             ->shouldBeCalled();
@@ -290,7 +290,7 @@ class QueryMiddlewareTest extends TestCase
     public function it_dispatches_a_query_get_request(): void
     {
         $queryName = 'stdClass';
-        $messageData = ['payload' => ['query' => []], 'metadata' => []];
+        $messageData = ['payload' => [], 'metadata' => []];
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(new FulfilledPromise([]));
@@ -335,7 +335,7 @@ class QueryMiddlewareTest extends TestCase
     public function it_dispatches_a_query_with_route_params_get_request(): void
     {
         $queryName = 'stdClass';
-        $messageData = ['payload' => ['foo' => 'bar', 'bar' => 'foo', 'query' => []], 'metadata' => []];
+        $messageData = ['payload' => ['foo' => 'bar', 'bar' => 'foo'], 'metadata' => []];
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(new FulfilledPromise([]));
@@ -380,7 +380,7 @@ class QueryMiddlewareTest extends TestCase
     public function it_dispatches_a_query_with_query_params_get_request(): void
     {
         $queryName = 'stdClass';
-        $messageData = ['payload' => ['query' => ['foo' => 'bar', 'bar' => 'foo']], 'metadata' => []];
+        $messageData = ['payload' => [], 'metadata' => ['foo' => 'bar', 'bar' => 'foo']];
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(new FulfilledPromise([]));
@@ -425,7 +425,7 @@ class QueryMiddlewareTest extends TestCase
     public function it_dispatches_a_query_with_route_params_and_query_params_get_request(): void
     {
         $queryName = 'stdClass';
-        $messageData = ['payload' => ['foo' => 'bar', 'bar' => 'foo', 'query' => ['foo' => 'bar', 'bar' => 'foo']], 'metadata' => []];
+        $messageData = ['payload' => ['foo' => 'bar', 'bar' => 'foo'], 'metadata' => ['foo' => 'bar', 'bar' => 'foo']];
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willReturn(new FulfilledPromise([]));
@@ -570,7 +570,7 @@ class QueryMiddlewareTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $queryName = 'stdClass';
-        $messageData = ['payload' => ['query' => []], 'metadata' => []];
+        $messageData = ['payload' => [], 'metadata' => []];
 
         $queryBus = $this->prophesize(QueryBus::class);
         $queryBus->dispatch(Argument::type(Message::class))->shouldBeCalled()->willThrow(new RuntimeException());

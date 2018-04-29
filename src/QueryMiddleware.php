@@ -196,10 +196,12 @@ final class QueryMiddleware implements MiddlewareInterface
     private function extractParamsFromRequest(ServerRequestInterface $request): array
     {
         $routeParams = $this->routeParamsExtractor->extractRouteParams($request);
-        $queryParams = $request->getQueryParams();
 
-        $payload = ['payload' => array_merge($routeParams, ['query' => $queryParams])];
-        $payload['metadata'] = $this->metadataGatherer->getFromRequest($request);
+        $payload = ['payload' => $routeParams];
+        $payload['metadata'] = array_merge(
+            $this->metadataGatherer->getFromRequest($request),
+            $request->getQueryParams()
+        );
 
         return $payload;
     }

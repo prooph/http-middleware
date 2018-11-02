@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -53,7 +54,7 @@ class CommandMiddlewareTest extends TestCase
         $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('Command name attribute ("%s") was not found in request.', CommandMiddleware::NAME_ATTRIBUTE));
+        $this->expectExceptionMessage(\sprintf('Command name attribute ("%s") was not found in request.', CommandMiddleware::NAME_ATTRIBUTE));
 
         $middleware = new CommandMiddleware($commandBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
 

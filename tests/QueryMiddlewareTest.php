@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -54,7 +55,7 @@ class QueryMiddlewareTest extends TestCase
         $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE));
+        $this->expectExceptionMessage(\sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE));
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 
@@ -83,7 +84,7 @@ class QueryMiddlewareTest extends TestCase
         $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('Each query must contain the query name attribute (%s)', QueryMiddleware::NAME_ATTRIBUTE));
+        $this->expectExceptionMessage(\sprintf('Each query must contain the query name attribute (%s)', QueryMiddleware::NAME_ATTRIBUTE));
 
         $middleware = new QueryMiddleware($queryBus->reveal(), $messageFactory->reveal(), $responseStrategy->reveal(), $gatherer->reveal());
 

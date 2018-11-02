@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -380,7 +381,7 @@ class MessageMiddlewareTest extends TestCase
         $message = $this->prophesize(Message::class);
         $message->messageType()->shouldBeCalled()->willReturn(Message::TYPE_COMMAND);
 
-        $payloadWithUpdatedMessageName = array_merge($payload, ['message_name' => 'name_from_request']);
+        $payloadWithUpdatedMessageName = \array_merge($payload, ['message_name' => 'name_from_request']);
 
         $messageFactory = $this->prophesize(MessageFactory::class);
         $messageFactory

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -53,7 +54,7 @@ class EventMiddlewareTest extends TestCase
         $handler = $this->prophesize(RequestHandlerInterface::class);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage(sprintf('Event name attribute ("%s") was not found in request.', EventMiddleware::NAME_ATTRIBUTE));
+        $this->expectExceptionMessage(\sprintf('Event name attribute ("%s") was not found in request.', EventMiddleware::NAME_ATTRIBUTE));
 
         $middleware = new EventMiddleware($eventBus->reveal(), $messageFactory->reveal(), $gatherer->reveal(), $responseStrategy->reveal());
 

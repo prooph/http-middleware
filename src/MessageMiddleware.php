@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -91,7 +92,7 @@ final class MessageMiddleware implements MiddlewareInterface
         try {
             $payload = $request->getParsedBody();
 
-            if (is_array($payload) && isset($payload['message_name'])) {
+            if (\is_array($payload) && isset($payload['message_name'])) {
                 $messageName = $payload['message_name'];
             }
 
@@ -130,7 +131,7 @@ final class MessageMiddleware implements MiddlewareInterface
                     );
                 default:
                     throw new RuntimeException(
-                        sprintf(
+                        \sprintf(
                             'Invalid message type "%s" for message "%s".',
                             $message->messageType(),
                             $messageName
@@ -146,7 +147,7 @@ final class MessageMiddleware implements MiddlewareInterface
             );
         } catch (\Throwable $e) {
             throw new RuntimeException(
-                sprintf('An error occurred during dispatching of message "%s"', $messageName),
+                \sprintf('An error occurred during dispatching of message "%s"', $messageName),
                 StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $e
             );

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -83,7 +84,7 @@ final class EventMiddleware implements MiddlewareInterface
 
         if (null === $eventName) {
             throw new RuntimeException(
-                sprintf('Event name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                \sprintf('Event name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
                 StatusCodeInterface::STATUS_BAD_REQUEST
             );
         }
@@ -99,7 +100,7 @@ final class EventMiddleware implements MiddlewareInterface
             return $this->responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
         } catch (\Throwable $e) {
             throw new RuntimeException(
-                sprintf('An error occurred during dispatching of event "%s"', $eventName),
+                \sprintf('An error occurred during dispatching of event "%s"', $eventName),
                 StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $e
             );

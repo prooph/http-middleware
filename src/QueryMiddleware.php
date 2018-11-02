@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -107,7 +108,7 @@ final class QueryMiddleware implements MiddlewareInterface
                 $promises[$id] = $this->queryBus->dispatch($query);
             } catch (\Throwable $e) {
                 throw new RuntimeException(
-                    sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
+                    \sprintf('An error occurred during dispatching of query "%s"', $message[self::NAME_ATTRIBUTE]),
                     StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                     $e
                 );
@@ -131,14 +132,14 @@ final class QueryMiddleware implements MiddlewareInterface
     {
         if (! isset($body[self::QUERIES_ATTRIBUTE])) {
             throw new RuntimeException(
-                sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE)
+                \sprintf('The root query value ("%s") must be provided.', QueryMiddleware::QUERIES_ATTRIBUTE)
             );
         }
 
         foreach ($body[self::QUERIES_ATTRIBUTE] as $message) {
-            if (! is_array($message) || ! array_key_exists(self::NAME_ATTRIBUTE, $message)) {
+            if (! \is_array($message) || ! \array_key_exists(self::NAME_ATTRIBUTE, $message)) {
                 throw new RuntimeException(
-                    sprintf('Each query must contain the query name attribute (%s).', self::NAME_ATTRIBUTE)
+                    \sprintf('Each query must contain the query name attribute (%s).', self::NAME_ATTRIBUTE)
                 );
             }
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -83,7 +84,7 @@ final class CommandMiddleware implements MiddlewareInterface
 
         if (null === $commandName) {
             throw new RuntimeException(
-                sprintf('Command name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
+                \sprintf('Command name attribute ("%s") was not found in request.', self::NAME_ATTRIBUTE),
                 StatusCodeInterface::STATUS_BAD_REQUEST
             );
         }
@@ -99,7 +100,7 @@ final class CommandMiddleware implements MiddlewareInterface
             return $this->responseStrategy->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
         } catch (\Throwable $e) {
             throw new RuntimeException(
-                sprintf('An error occurred during dispatching of command "%s"', $commandName),
+                \sprintf('An error occurred during dispatching of command "%s"', $commandName),
                 StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $e
             );

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -49,7 +50,7 @@ abstract class AbstractMiddlewareFactory implements RequiresConfigId
     {
         if (! isset($arguments[0]) || ! $arguments[0] instanceof ContainerInterface) {
             throw new InvalidArgumentException(
-                sprintf('The first argument must be of type %s', ContainerInterface::class)
+                \sprintf('The first argument must be of type %s', ContainerInterface::class)
             );
         }
 
@@ -59,7 +60,7 @@ abstract class AbstractMiddlewareFactory implements RequiresConfigId
     public function __construct(string $configId)
     {
         // ensure BC
-        $this->configId = method_exists($this, 'containerId') ? $this->containerId() : $configId;
+        $this->configId = \method_exists($this, 'containerId') ? $this->containerId() : $configId;
     }
 
     public function dimensions(): iterable

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of prooph/http-middleware.
  * (c) 2016-2018 prooph software GmbH <contact@prooph.de>
@@ -122,8 +123,8 @@ class CommandMiddlewareFactoryTest extends TestCase
         ];
 
         if (null !== $gatherer) {
-            $config['prooph']['middleware'][$configId]['metadata_gatherer'] = get_class($gatherer);
-            $container->get(get_class($gatherer))->willReturn($gatherer);
+            $config['prooph']['middleware'][$configId]['metadata_gatherer'] = \get_class($gatherer);
+            $container->get(\get_class($gatherer))->willReturn($gatherer);
         }
 
         $container->has('config')->willReturn(true);

@@ -20,11 +20,14 @@ use Prooph\HttpMiddleware\Container\QueryMiddlewareFactory;
 use Prooph\HttpMiddleware\Exception\InvalidArgumentException;
 use Prooph\HttpMiddleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 
 class QueryMiddlewareFactoryTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

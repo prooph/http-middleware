@@ -24,6 +24,7 @@ use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -34,6 +35,8 @@ use React\Promise\Promise;
  */
 class MessageMiddlewareTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

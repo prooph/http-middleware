@@ -21,11 +21,14 @@ use Prooph\HttpMiddleware\EventMiddleware;
 use Prooph\HttpMiddleware\Exception\InvalidArgumentException;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 
 class EventMiddlewareFactoryTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

@@ -21,11 +21,14 @@ use Prooph\HttpMiddleware\Container\CommandMiddlewareFactory;
 use Prooph\HttpMiddleware\Exception\InvalidArgumentException;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 
 class CommandMiddlewareFactoryTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

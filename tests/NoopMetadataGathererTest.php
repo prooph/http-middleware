@@ -16,6 +16,7 @@ namespace ProophTest\HttpMiddleware;
 use PHPUnit\Framework\TestCase;
 use Prooph\HttpMiddleware\MetadataGatherer;
 use Prooph\HttpMiddleware\NoopMetadataGatherer;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -23,6 +24,8 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class NoopMetadataGathererTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */
@@ -41,7 +44,7 @@ class NoopMetadataGathererTest extends TestCase
         $gatherer = new NoopMetadataGatherer();
         $request = $this->prophesize(ServerRequestInterface::class);
 
-        $this->assertInternalType('array', $gatherer->getFromRequest($request->reveal()));
+        $this->assertIsArray($gatherer->getFromRequest($request->reveal()));
         $this->assertEmpty($gatherer->getFromRequest($request->reveal()));
     }
 }

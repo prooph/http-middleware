@@ -22,6 +22,7 @@ use Prooph\HttpMiddleware\QueryMiddleware;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\QueryBus;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -33,6 +34,8 @@ use React\Promise\Promise;
  */
 class QueryMiddlewareTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

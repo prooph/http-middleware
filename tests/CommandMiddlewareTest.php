@@ -23,6 +23,7 @@ use Prooph\HttpMiddleware\MetadataGatherer;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -32,6 +33,8 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class CommandMiddlewareTest extends TestCase
 {
+    use ProphecyTrait;
+    
     /**
      * @test
      */

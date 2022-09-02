@@ -23,11 +23,14 @@ use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 
 class MessageMiddlewareFactoryTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

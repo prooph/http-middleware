@@ -39,7 +39,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^7.4|^8.0",
+    "php": "^7.4 || ^8.0",
     "prooph/common": "^4.1",
     "prooph/service-bus": "^6.0",
     "psr/http-message": "^1.0",

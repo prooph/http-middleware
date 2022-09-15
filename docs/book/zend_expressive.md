@@ -1,11 +1,11 @@
 # Zend Expressive integration
-The [Zend Expressive](https://github.com/zendframework/zend-expressive) integration is very easy, because you can use 
-the predefined factories and configuration examples of the specific prooph component.
 
-> Take a look at the Zend Expressive [prooph components in action](https://github.com/prooph/proophessor-do "proophessor-do example app") 
-example app.
+The [Zend Expressive](https://github.com/zendframework/zend-expressive) integration is very easy, because you can use the predefined factories and configuration examples of the specific prooph component.
+
+> Take a look at the Zend Expressive [prooph components in action](https://github.com/prooph/proophessor-do "proophessor-do example app") example app.
 
 ## Routes
+
 Here is an example for the `AuraRouter` to call the `CommandMiddleware` for the `register-user` command.
 
 ```php
@@ -42,10 +42,10 @@ final class MyMetadataGatherer implements MetadataGatherer
      * @inheritdoc
      */
     public function getFromRequest(ServerRequestInterface $request) {
-    	return [
-    		'identity' => $request->getAttribute('identity'),
-    		'request_uuid' => $request->getAttribute('request_uuid')
-    	];
+        return [
+            'identity' => $request->getAttribute('identity'),
+            'request_uuid' => $request->getAttribute('request_uuid')
+        ];
     }
 }
 
@@ -56,8 +56,8 @@ Then define it in container and prooph configuration;
 ```php
 return [
     'dependencies' => [
-    	'factories' => [
-    		\My\HttpMiddleware\MyMetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
+        'factories' => [
+            \My\HttpMiddleware\MyMetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
         ],
     ],
     'prooph' => [
@@ -69,4 +69,3 @@ return [
     ],
     ...
 ```
-

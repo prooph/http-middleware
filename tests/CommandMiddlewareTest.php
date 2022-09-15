@@ -34,7 +34,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class CommandMiddlewareTest extends TestCase
 {
     use ProphecyTrait;
-    
+
     /**
      * @test
      */

@@ -1,8 +1,8 @@
-# Zend Expressive integration
+# Laminas Expressive integration
 
-The [Zend Expressive](https://github.com/zendframework/zend-expressive) integration is very easy, because you can use the predefined factories and configuration examples of the specific prooph component.
+The [Laminas Expressive](https://github.com/laminas/laminas-expressive) integration is very easy, because you can use the predefined factories and configuration examples of the specific prooph component.
 
-> Take a look at the Zend Expressive [prooph components in action](https://github.com/prooph/proophessor-do "proophessor-do example app") example app.
+> Take a look at the Laminas Expressive [prooph components in action](https://github.com/prooph/proophessor-do "proophessor-do example app") example app.
 
 ## Routes
 
@@ -11,7 +11,7 @@ Here is an example for the `AuraRouter` to call the `CommandMiddleware` for the 
 ```php
 // routes.php
 
-/** @var \Zend\Expressive\Application $app */
+/** @var \Laminas\Expressive\Application $app */
 $app->post('/api/commands/register-user', [
     \Prooph\HttpMiddleware\CommandMiddleware::class,
 ], 'command::register-user')
@@ -57,7 +57,7 @@ Then define it in container and prooph configuration;
 return [
     'dependencies' => [
         'factories' => [
-            \My\HttpMiddleware\MyMetadataGatherer::class => \Zend\ServiceManager\Factory\InvokableFactory::class
+            \My\HttpMiddleware\MyMetadataGatherer::class => \ Laminas\ServiceManager\Factory\InvokableFactory::class
         ],
     ],
     'prooph' => [

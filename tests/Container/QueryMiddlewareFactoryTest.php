@@ -2,8 +2,8 @@
 
 /**
  * This file is part of prooph/http-middleware.
- * (c) 2016-2019 Alexander Miertsch <kontakt@codeliner.ws>
- * (c) 2016-2019 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * (c) 2016-2022 Alexander Miertsch <kontakt@codeliner.ws>
+ * (c) 2016-2022 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,11 +20,14 @@ use Prooph\HttpMiddleware\Container\QueryMiddlewareFactory;
 use Prooph\HttpMiddleware\Exception\InvalidArgumentException;
 use Prooph\HttpMiddleware\QueryMiddleware;
 use Prooph\ServiceBus\QueryBus;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 
 class QueryMiddlewareFactoryTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

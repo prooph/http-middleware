@@ -2,8 +2,8 @@
 
 /**
  * This file is part of prooph/http-middleware.
- * (c) 2016-2019 Alexander Miertsch <kontakt@codeliner.ws>
- * (c) 2016-2019 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * (c) 2016-2022 Alexander Miertsch <kontakt@codeliner.ws>
+ * (c) 2016-2022 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,6 +23,7 @@ use Prooph\HttpMiddleware\MetadataGatherer;
 use Prooph\HttpMiddleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\EventBus;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -32,6 +33,8 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class EventMiddlewareTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */

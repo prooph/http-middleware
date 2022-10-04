@@ -1,10 +1,18 @@
 {
   "title": "http middleware for prooph components",
   "content": [
-    {"intro": "../README.md"},
-    {"overview": "book/middleware.md"},
-    {"factories": "book/factories.md"},
-    {"zend-expressive-integration": "book/zend_expressive.md"}
+    {
+      "intro": "../README.md"
+    },
+    {
+      "overview": "book/middleware.md"
+    },
+    {
+      "factories": "book/factories.md"
+    },
+    {
+      "laminas-expressive-integration": "book/laminas_expressive.md"
+    }
   ],
   "tocDepth": 2,
   "target": "./html",

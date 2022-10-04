@@ -2,8 +2,8 @@
 
 /**
  * This file is part of prooph/http-middleware.
- * (c) 2016-2019 Alexander Miertsch <kontakt@codeliner.ws>
- * (c) 2016-2019 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * (c) 2016-2022 Alexander Miertsch <kontakt@codeliner.ws>
+ * (c) 2016-2022 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,6 +16,7 @@ namespace ProophTest\HttpMiddleware;
 use PHPUnit\Framework\TestCase;
 use Prooph\HttpMiddleware\MetadataGatherer;
 use Prooph\HttpMiddleware\NoopMetadataGatherer;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -23,6 +24,8 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class NoopMetadataGathererTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @test
      */
@@ -41,7 +44,7 @@ class NoopMetadataGathererTest extends TestCase
         $gatherer = new NoopMetadataGatherer();
         $request = $this->prophesize(ServerRequestInterface::class);
 
-        $this->assertInternalType('array', $gatherer->getFromRequest($request->reveal()));
+        $this->assertIsArray($gatherer->getFromRequest($request->reveal()));
         $this->assertEmpty($gatherer->getFromRequest($request->reveal()));
     }
 }

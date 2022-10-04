@@ -1,6 +1,14 @@
 # Changelog
 
-## [v0.3.0](https://github.com/prooph/http-middleware/tree/v0.3.0)
+## [v0.3.1](https://github.com/prooph/http-middleware/tree/v0.3.1)
+
+[Full Changelog](https://github.com/prooph/http-middleware/compare/v0.3.0...v0.3.1)
+
+**Implemented enhancements:**
+
+- Laminas continuous integration [\#21](https://github.com/prooph/http-middleware/pull/21) ([basz](https://github.com/basz))
+
+## [v0.3.0](https://github.com/prooph/http-middleware/tree/v0.3.0) (2022-10-04)
 
 [Full Changelog](https://github.com/prooph/http-middleware/compare/v0.2.0...v0.3.0)
 

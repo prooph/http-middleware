@@ -85,10 +85,10 @@ class CommandMiddlewareTest extends TestCase
             ->willReturn($message->reveal());
 
         $request = $this->prophesize(ServerRequestInterface::class);
+        $request->getParsedBody()->willReturn($payload)->shouldBeCalled();
         $request->getAttribute(CommandMiddleware::NAME_ATTRIBUTE)->willReturn($commandName);
 
         $gatherer = $this->prophesize(MetadataGatherer::class);
-        $gatherer->getFromRequest($request)->shouldNotBeCalled();
 
         $responseStrategy = $this->prophesize(ResponseStrategy::class);
         $responseStrategy->withStatus()->shouldNotBeCalled();
